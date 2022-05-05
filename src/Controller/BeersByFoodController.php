@@ -23,6 +23,11 @@ class BeersByFoodController
     public function listBeersByFood(Request $request): JsonResponse
     {
         $foodUrl = $request->get('food');
+
+        if (empty($foodUrl) || is_numeric($foodUrl)){
+            return $this->validateFood($foodUrl);
+        }
+
         $contents = $this->listBeersRepository->listBeers('?food='.$foodUrl);
 
         $dataBeers = BeersByFoodSerializer::beersByFoodData(json_decode($contents));
@@ -33,6 +38,18 @@ class BeersByFoodController
             'success' => true,
             'message' => 'Welcome',
             'dataBeers'     => $dataBeers,
+        ]);
+
+        return $response;
+    }
+
+    private function validateFood($food): JsonResponse
+    {
+        $response = new JsonResponse();
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setData([
+            'success' => false,
+            'message' => 'The Food is not Correct',
         ]);
 
         return $response;

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use GuzzleHttp\Client;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ListBeersRepository
 {
@@ -10,16 +11,26 @@ class ListBeersRepository
 
     public function listBeers($addUrl = null)
     {
-        $client = new Client([
+        try {
+
+            $client = new Client([
                 'base_uri' => self::URL_BASE,
                 'timeout' => 300.0,
                 'headers' => ['Content-Type' => 'application/json', "Accept" => "application/json"],
                 'http_errors' => false,
                 'verify' => false
-        ]);
+            ]);
 
-        $res = $client->request('GET', 'beers' . $addUrl);
+            $res = $client->request('GET', 'beers' . $addUrl);
 
-        return $res->getBody()->getContents();
+            return $res->getBody()->getContents();
+
+        }catch (\Exception $exception){
+            return new JsonResponse([
+                'message' => $exception->getMessage(),
+                'data' => [],
+                'errors' => []
+            ]);
+        }
     }
 }
